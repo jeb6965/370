@@ -1,0 +1,89 @@
+// windows: g++ -o assignment-2-demo.exe assignment-2-demo.cpp -O2 -lgdi32
+// mac: g++ assignment-2-demo.cpp -o assignment-2-demo -std=c++11 -lX11
+
+#include <iostream>
+#include "CImg.h"
+
+using namespace cimg_library;
+
+int main(){  
+
+	//create an empty 500x500
+	CImg<unsigned char> image(439, 514, 1, 3, 0);
+	
+
+	//set colors at corners
+	//top left: 
+	image(0,0,0,0) = 150; //<- set red channel (x, y, 0, rgb channel)
+	image(0,0,0,1) = 250; //<- set green channel
+	image(0,0,0,2) = 10; //<- set blue channel
+	
+	//bottom right:
+	image(image.width()-1,image.height()-1,0,0) = 10; //<- set red channel 
+	image(image.width()-1,image.height()-1,0,1) = 100; //<- set green channel
+	image(image.width()-1,image.height()-1,0,2) = 250; //<- set blue channel
+	
+	//TODO: Complete the color values at the other two corners
+	//bottom left:
+	image(0,image.height()-1,0,0) = 190; //<- set red channel 
+	image(0,image.height()-1,0,1) = 25; //<- set green channel
+	image(0,image.height()-1,0,2) = 60; //<- set blue channel	
+	
+	//top right:
+	image(image.width()-1,0,0,0) = 5;   //<- set red channel 
+	image(image.width()-1,0,0,1) = 180; //<- set green channel
+	image(image.width()-1,0,0,2) = 40; //<- set blue channel
+
+	
+	//AVOID int division for accurate interpolation
+	//image.width()*1.0 <-- use something like this when you divide declare i/j as floats
+	
+		//TODO: interpolation formula per channel for edges (top/bottom)
+	for (float i = 0; i < image.width(); i++){
+	        float t = i / ((image.width() * 1.0) - 1.0); 
+	//Top edge interpolation.	
+		image(i,0,0,0) = (1 - t) * 150 + (t * 5);//red color based on lineraly interpolating left corner 
+						 //and right corner;
+		image(i,0,0,1) = (1 - t) * 250 + (t * 180);//green color based on lineraly interpolating left corner 
+						 //and right corner;
+		image(i,0,0,2) = (1 - t) * 10 + (t * 40); //blue color based on lineraly interpolating left corner 
+						 //and right corner;
+	//Bottom edge interpolation.
+		image(i,image.height()-1,0,0) = (1 - t) * 190 + (t * 10);//red color based on lineraly interpolating left corner 
+						 //and right corner;
+		image(i,image.height()-1,0,1) = (1 - t) * 25 + (t * 100);//green color based on lineraly interpolating left corner 
+						 //and right corner;
+		image(i,image.height()-1,0,2) = (1 - t) * 60 + (t * 250); //blue color based on lineraly interpolating left corner 
+						 //and right corner;
+	}
+	
+	
+	//TODO: interpolate down the columns
+	for (int i = 0; i < image.width(); i++){
+		//iterate over all the columns in the image
+		for (int j = 0; j < image.height(); j++){ //TODO: change to start at second row and end at second to last to last row
+			
+		}
+	}	
+	
+	
+	//display an image	
+	/*CImgDisplay disp(image);
+	while (!disp.is_closed()){
+		disp.wait();
+	}*/
+	
+	image.save("gradient-image.bmp");
+	
+	return 0;
+}
+
+
+
+
+
+
+
+
+	
+
