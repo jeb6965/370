@@ -37,28 +37,28 @@ int main(){
         std::cout << "(" << coords_x[i] << "," << coords_y[i] << ")" << std::endl;
     }
     
-    for (int line = 0; line < (coords_x.size() - 1); line++)
+    for (int line = 0; line < (coords_x.size()); line++)
     {
         // Ensure closure of the shape when the final point is reached.
+        int nextPoint = (line + 1) % coords_x.size();
         float x0, y0, x1, y1;
         // move left to right
-        if (coords_x[line] < coords_x[line + 1])
+        if (coords_x[line] < coords_x[nextPoint])
         {
             x0 = coords_x[line];
-            x1 = coords_x[line + 1];
+            x1 = coords_x[nextPoint];
             y0 = coords_y[line];
-            y1 = coords_y[line + 1];
+            y1 = coords_y[nextPoint];
         }
         else
         {
             x1 = coords_x[line];
-            x0 = coords_x[line + 1];
+            x0 = coords_x[nextPoint];
             y1 = coords_y[line];
-            y0 = coords_y[line + 1];
+            y0 = coords_y[nextPoint];
         }
         std::cout << "coords: " << x0 << ", " << y0 << ", " << x1 << ", " << y1 <<
         std::endl;
-
         float slope = (y1 - y0) / (x1 - x0);
         std::cout << "slope: " << slope << std::endl;
         if (slope >= 0 && slope < 1)
@@ -104,12 +104,12 @@ int main(){
             for (float y = y0; y > y1; y--)
             {
                 raster(x, y, 0, 0) = 255.0;
-                if (implicitLineEq(x + 0.5, y + 1, x0, y0, x1, y1) > 0)
+                if (implicitLineEq(x + 0.5, y - 1, x0, y0, x1, y1) > 0)
                 x++;
             }
         }
 
-        std::string filename = "midpoint_line_" + std::to_string(line + 1) + ".jpg";
+        std::string filename = "midpoint_line_" + std::to_string(nextPoint) + ".jpg";
         raster.save(filename.c_str());
     }
     // Display and save filtered image
