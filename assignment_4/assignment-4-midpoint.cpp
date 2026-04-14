@@ -36,9 +36,12 @@ int main(){
     {
         std::cout << "(" << coords_x[i] << "," << coords_y[i] << ")" << std::endl;
     }
-    
+    CImg<unsigned char> points = raster;
+    std::string pointimg = "Vertex.jpg";
+    points.save(pointimg.c_str());
     for (int line = 0; line < (coords_x.size()); line++)
     {
+        CImg<unsigned char> segmentRaster = points;
         // Ensure closure of the shape when the final point is reached.
         int nextPoint = (line + 1) % coords_x.size();
         float x0, y0, x1, y1;
@@ -60,7 +63,6 @@ int main(){
         std::cout << "coords: " << x0 << ", " << y0 << ", " << x1 << ", " << y1 <<
         std::endl;
         float slope = (y1 - y0) / (x1 - x0);
-        std::cout << "slope: " << slope << std::endl;
         if (slope >= 0 && slope < 1)
         {
             std::cout << "CASE 1\n";
@@ -68,6 +70,7 @@ int main(){
             for (float x = x0; x < x1; x++)
             {
                 raster(x, y, 0, 0) = 255.0;
+                segmentRaster(x, y, 0, 0) = 255.0;
                 if (implicitLineEq(x + 1, y + 0.5, x0, y0, x1, y1) > 0)
                 y++;
             }
@@ -80,6 +83,7 @@ int main(){
             for (float x = x0; x < x1; x++)
             {
                 raster(x, y, 0, 0) = 255.0;
+                segmentRaster(x, y, 0, 0) = 255.0;
                 if (implicitLineEq(x + 1, y - 0.5, x0, y0, x1, y1) < 0)
                 y--;
             }
@@ -92,6 +96,7 @@ int main(){
             for (float y = y0; y < y1; y++)
             {
                 raster(x, y, 0, 0) = 255.0;
+                segmentRaster(x, y, 0, 0) = 255.0;
                 if (implicitLineEq(x + 0.5, y + 1, x0, y0, x1, y1) < 0)
                 x++;
             }
@@ -104,16 +109,21 @@ int main(){
             for (float y = y0; y > y1; y--)
             {
                 raster(x, y, 0, 0) = 255.0;
+                segmentRaster(x, y, 0, 0) = 255.0;
                 if (implicitLineEq(x + 0.5, y - 1, x0, y0, x1, y1) > 0)
                 x++;
             }
         }
 
         std::string filename = "midpoint_line_" + std::to_string(nextPoint) + ".jpg";
-        raster.save(filename.c_str());
+        segmentRaster.save(filename.c_str());
     }
     // Display and save filtered image
+    
+    std::string filename = "final.jpg";
+    raster.save(filename.c_str());
+    
     CImgDisplay disp2(raster);
     while (!disp2.is_closed())
-    disp2.wait();
-}
+        disp2.wait();
+};

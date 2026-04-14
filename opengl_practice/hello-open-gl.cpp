@@ -34,34 +34,80 @@ int main() {
 	glDepthFunc(GL_LESS); // depth-testing interprets a smaller value as "closer"
 	glPointSize(5.0f);
 	glClearColor(0,0,0,1.0f);
-	/* VERTEX POSITION */
-	float points[] = {
-		0.0f, 0.5f, 0.0f,
+	
+	/* VERTEX POSITIONS */
+	float positions[] = {
+		// triangle 1
+		0.0f,  0.5f, 0.0f,
 		0.5f, -0.5f, 0.0f,
-		-0.5f, -0.5f, 0.0f
+		-0.5f, -0.5f, 0.0f,
+		// triangle 2
+		-0.8f,  0.8f, 0.0f,
+		-0.4f,  0.2f, 0.0f,
+		-0.9f,  0.2f, 0.0f,
+		// triangle 3
+		0.4f,  0.8f, 0.0f,
+		0.9f,  0.2f, 0.0f,
+		0.3f,  0.2f, 0.0f,
 	};
-	GLuint vbo = 0;
-	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, 9 * sizeof(float), points, GL_STATIC_DRAW);
+
+	/* VERTEX COLORS */
+	float colors[] = {
+		// triangle 1
+		1.0f, 0.0f, 0.0f,  // red
+		0.0f, 1.0f, 0.0f,  // green
+		0.0f, 0.0f, 1.0f,  // blue
+		// triangle 2
+		1.0f, 1.0f, 0.0f,  // yellow
+		1.0f, 0.0f, 1.0f,  // magenta
+		0.0f, 1.0f, 1.0f,  // cyan
+		// triangle 3
+		1.0f, 0.5f, 0.0f,  // orange
+		0.5f, 0.0f, 1.0f,  // purple
+		0.0f, 1.0f, 0.5f,  // teal
+	};
+
+	// position VBO
+	GLuint vbo_pos, vbo_col;
+	glGenBuffers(1, &vbo_pos);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_pos);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(positions), positions, GL_STATIC_DRAW);
+
+	// color VBO
+	glGenBuffers(1, &vbo_col);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_col);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW);
+
 	GLuint vao = 0;
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
+
 	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_pos);     
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+
+	glEnableVertexAttribArray(1);               
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_col);    
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, NULL); 
+
 	const char* vertex_shader =
-	"#version 400\n"
-	"in vec3 vp;"
-	"void main() {"
-	" gl_Position = vec4(vp.x, vp.y, vp.z, 1.0);"
-	"}";
+    "#version 400\n"
+    "layout(location = 0) in vec3 vp;"  // Vertex points
+    "layout(location = 1) in vec3 color;"  // Vertex colors
+    "out vec3 fragColor;"  // Sends to fragment shader
+    "void main() {"
+    "  gl_Position = vec4(vp.x, vp.y, vp.z, 1.0);"
+    "  fragColor = color;"
+    "}";
+
 	const char* fragment_shader =
-	"#version 400\n"
-	"out vec4 frag_color;"
-	"void main() {"
-	" frag_color = vec4(1.0, 0.0, 0.0, 1.0);"
-	"}";
+    "#version 400\n"
+    "in vec3 fragColor;"  // Matches by name
+    "out vec4 frag_color;"
+    "void main() {"
+    "  frag_color = vec4(fragColor, 1.0);"
+    "}";
+
 	GLuint vs = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vs, 1, &vertex_shader, NULL);
 	glCompileShader(vs);
@@ -89,7 +135,7 @@ int main() {
 		glBindVertexArray(vao);
 		glPointSize(5.0);
 		// draw points 0-3 from the currently bound VAO with current in-use shader
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glDrawArrays(GL_TRIANGLES, 0, 9);
 		// update other events like input handling
 		glfwPollEvents();
 		// put the stuff we've been drawing onto the display
